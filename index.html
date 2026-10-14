@@ -51,6 +51,11 @@
       <div><b>カパ（水と土）</b>どっしり潤す力。穏やかで安定感がある。</div>
     </div>
     <p style="font-size:14px;color:var(--sub)">全18問。最も近いと感じるものを一つ選んでください。深く考えすぎず、直感で大丈夫です。</p>
+    <label for="uname" style="display:block;font-size:14px;font-weight:600;margin-top:14px">お名前（必須）</label>
+    <input id="uname" type="text" maxlength="40" placeholder="例：山田 花子" autocomplete="name"
+      style="width:100%;font:inherit;font-size:16px;padding:12px;border:1.5px solid var(--line);border-radius:10px;margin-top:6px">
+    <div id="nameerr" class="hide" style="color:#c0392b;font-size:13px;margin-top:6px">お名前を入力してください</div>
+    <p style="font-size:12px;color:var(--sub);margin-top:8px">入力されたお名前と判定結果は、あなた専用のアドバイスをご案内するために、周波数の魔法使い（半沢フジ子）が確認します。</p>
     <button class="primary" id="go">はじめる</button>
   </div>
 
@@ -133,8 +138,23 @@ function finish(){
     setTimeout(()=>d.querySelector("i").style.width=pct+"%",50);
   });
   show("result");
+  send(n,title);
 }
-$("go").onclick=()=>{idx=0;ans=[];render();show("quiz");};
+// ▼ Googleフォームの送信先（フォーム作成後に設定）
+const FORM_URL="https://docs.google.com/forms/d/e/1FAIpQLSf3pg2Dpn_LUlsUL2Gi7-01Mrh2feTFvaCY9AdGUt4HPzsbTg/formResponse";   // 例: https://docs.google.com/forms/d/e/xxxx/formResponse
+const ENTRY={name:"entry.1196260656",result:"entry.771255316",detail:"entry.1285520795"}; // 例: "entry.123456789"
+function send(n,title){
+  if(!FORM_URL) return;
+  const fd=new FormData();
+  fd.append(ENTRY.name,$("uname").value.trim());
+  fd.append(ENTRY.result,title);
+  fd.append(ENTRY.detail,"ヴァータ"+n[0]+"問／ピッタ"+n[1]+"問／カパ"+n[2]+"問");
+  fetch(FORM_URL,{method:"POST",mode:"no-cors",body:fd}).catch(()=>{});
+}
+$("go").onclick=()=>{
+  if(!$("uname").value.trim()){$("nameerr").classList.remove("hide");$("uname").focus();return;}
+  $("nameerr").classList.add("hide");
+  idx=0;ans=[];render();show("quiz");};
 $("back").onclick=()=>{if(idx>0){idx--;render();}};
 $("again").onclick=()=>{idx=0;ans=[];show("start");};
 </script>
